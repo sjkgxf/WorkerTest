@@ -12,8 +12,6 @@ package
 	import flash.system.WorkerDomain;
 	import flash.utils.ByteArray;
 	
-	import net.hires.debug.Stats;
-	
 	[SWF(width="650", height="400", backgroundColor="#000000")]
 	public class ImageWorkerExample extends Sprite
 	{
@@ -58,7 +56,6 @@ package
 				stage.frameRate = 2;
 				sharpenWorker = new SharpenWorker();
 			}
-			addChild(new Stats());
 		}
 		
 		protected function initWorker():void {
