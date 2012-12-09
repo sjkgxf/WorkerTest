@@ -2,6 +2,7 @@ package
 {
 	import com.adobe.images.JPGEncoder;
 	import com.greensock.TweenLite;
+	import com.greensock.easing.Linear;
 	
 	import flash.display.BitmapData;
 	import flash.display.Sprite;
@@ -13,7 +14,9 @@ package
 	import flash.system.WorkerDomain;
 	import flash.utils.ByteArray;
 	
-	[SWF(width="800", height="600")]
+	import utils.Stats;
+	
+	[SWF(width="800", height="600", frameRate="60")]
 	public class MyJPGTest extends Sprite
 	{
 		protected var mainToWorker:MessageChannel;
@@ -23,6 +26,8 @@ package
 
 		private var sprite:Sprite;
 		private var clickSprite:Sprite;
+		
+		private var byteArray:ByteArray;
 		
 		public function MyJPGTest()
 		{
@@ -58,23 +63,12 @@ package
 			var byteArray : ByteArray = new JPGEncoder(90).encode(bmp);
 			
 			workerToMain.send(byteArray);
-			
-			/*var now:Date = new Date;
-			var month:int = now.month + 1;
-			var str:String = "爱情公寓Online_" + now.fullYear.toString() + (month<10?"0"+month:month) + (now.date<10?"0"+now.date:now.date) + "_" + "xxx" + ".jpg";
-			var f:FileReference = new FileReference;
-			f.save(byteArray, str);
-			if(bmp)
-			{
-				bmp.dispose();
-				bmp = null;
-			}*/
-			
-			
 		}
 		
 		private function init():void
 		{
+			this.addChild(new Stats());
+			
 			sprite = new Sprite();
 			sprite.graphics.clear();
 			sprite.graphics.beginFill(0xff0000);
@@ -84,8 +78,18 @@ package
 			sprite.x = 100;
 			sprite.y = 100;
 			
-			//TweenLite.to(sprite, 5, {x: 700});
-			//mainToWorker.send("CLICK");
+			var myTween:TweenLite = new TweenLite(sprite, 1, {x: 700,
+					onComplete: function reverseTween():void {
+						myTween.reverse();
+					},
+					onReverseComplete: function restartTween():void {
+						myTween.restart();
+					},
+					ease: Linear.easeNone
+				}
+			);
+			
+			mainToWorker.send("CLICK");
 		}
 		
 		protected function onClick(event:MouseEvent):void
@@ -93,8 +97,6 @@ package
 			var f:FileReference = new FileReference;
 			f.save(byteArray, "test.jpg");
 		}
-		
-		private var byteArray:ByteArray;
 		
 		protected function onWorkerToMain(event:Event):void
 		{
